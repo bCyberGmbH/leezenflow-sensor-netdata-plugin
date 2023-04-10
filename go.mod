@@ -32,12 +32,13 @@ require (
 	github.com/prometheus-community/pro-bing v0.1.0
 	github.com/prometheus/prometheus v0.36.2
 	github.com/stretchr/testify v1.8.2
+	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
 	github.com/tomasen/fcgi_client v0.0.0-20180423082037-2bb3d819fd19
 	github.com/valyala/fastjson v1.6.4
 	github.com/vmware/govmomi v0.22.2
 	go.mongodb.org/mongo-driver v1.11.3
 	golang.org/x/net v0.8.0
-	golang.org/x/text v0.8.0
+	golang.org/x/text v0.9.0
 	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20220504211119-3d4a969bb56b
 	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -133,7 +134,6 @@ require (
 	github.com/soheilhy/cmux v0.1.5 // indirect
 	github.com/spf13/cobra v1.4.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07 // indirect
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20201229170055-e5319fda7802 // indirect
 	github.com/urfave/cli v1.22.5 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
