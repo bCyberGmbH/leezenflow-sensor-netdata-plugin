@@ -9,6 +9,40 @@ learn_rel_path: "Developers/External plugins/go.d.plugin"
 sidebar_position: 1
 -->
 
+## leezenflow netdata plugin
+
+Reads sensor measurements from a serial port.
+
+Dev build:
+
+```
+make build && bin/godplugin -m leezenflow_sensor
+```
+
+Build:
+
+```
+make
+```
+
+### Dev serial port
+
+Open two terminals
+
+First:
+```
+socat -d -d pty,raw,echo=0 pty,raw,echo=0
+```
+
+Look at the output. One of the `/dev/pts/...` lines goes into the config of the netdata plugin, the other can should be used to pipe stuff into from the second terminal.
+
+Second:
+
+```
+echo "I AM A TEST MESSAGE" > /dev/pts/3
+```
+
+
 # go.d.plugin
 
 `go.d.plugin` is a [Netdata](https://github.com/netdata/netdata) external plugin. It is an **orchestrator** for data
