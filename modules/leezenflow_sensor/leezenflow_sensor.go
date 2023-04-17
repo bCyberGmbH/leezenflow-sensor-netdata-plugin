@@ -4,9 +4,7 @@ package leezenflow_sensor
 
 import (
 	"bufio"
-	"fmt"
 	"math/rand"
-	"os"
 	"strings"
 
 	"github.com/netdata/go.d.plugin/agent/module"
@@ -34,10 +32,6 @@ func New() *LeezenflowSensor {
 				Num:  1,
 				Dims: 4,
 			},
-			HiddenCharts: ConfigCharts{
-				Num:  0,
-				Dims: 4,
-			},
 		},
 
 		randInt:       func() int64 { return rand.Int63n(100) },
@@ -47,8 +41,7 @@ func New() *LeezenflowSensor {
 
 type (
 	Config struct {
-		Charts       ConfigCharts `yaml:"charts"`
-		HiddenCharts ConfigCharts `yaml:"hidden_charts"`
+		Charts ConfigCharts `yaml:"charts"`
 	}
 	ConfigCharts struct {
 		Type     string `yaml:"type"`
@@ -66,11 +59,14 @@ type LeezenflowSensor struct {
 	randInt       func() int64
 	charts        *module.Charts
 	collectedDims map[string]bool
+
+	lastTemperature, lastHumidty, lastVoltage int64
 }
 
 func (l *LeezenflowSensor) initSerial() error {
 	//
-	flagSerialDevice := "/dev/ttyUSB0"
+	//flagSerialDevice := "/dev/ttyUSB0"
+	flagSerialDevice := "/dev/pts/3"
 
 	config := &serial.Config{
 		Name: flagSerialDevice,
@@ -100,10 +96,11 @@ func (l *LeezenflowSensor) initSerial() error {
 			// Hier Nachricht vom ESP parsen und zwischenspeichern
 
 			// fmt.Fprintf(l.tempString, "%s,", line)
+			l.Println(line)
 
 		}
 		if err := scanner.Err(); err != nil {
-			fmt.Fprintf(os.Stderr, "%v\n", err)
+			l.Errorf("Error reading device %s: %v\n", flagSerialDevice, err)
 		}
 	}()
 
@@ -120,7 +117,7 @@ func (l *LeezenflowSensor) Init() bool {
 	err = l.initSerial()
 	if err != nil {
 		l.Errorf("serial initialization: %v", err)
-		// return false
+		return false
 	}
 
 	charts, err := l.initCharts()

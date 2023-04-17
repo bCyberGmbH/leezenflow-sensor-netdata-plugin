@@ -18,12 +18,7 @@ func (l *LeezenflowSensor) collect() (map[string]int64, error) {
 }
 
 func (l *LeezenflowSensor) collectChart(collected map[string]int64, chart *module.Chart) {
-	var num int
-	if chart.Opts.Hidden {
-		num = l.Config.HiddenCharts.Dims
-	} else {
-		num = l.Config.Charts.Dims
-	}
+	num := l.Config.Charts.Dims
 
 	for i := 0; i < num; i++ {
 		name := fmt.Sprintf("random%d", i)
