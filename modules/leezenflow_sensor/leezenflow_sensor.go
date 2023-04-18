@@ -131,7 +131,7 @@ func (l *LeezenflowSensor) initSerial() error {
 			} else if dataFields[0] == "P" {
 				l.lastPressure = int64(val)
 			} else if dataFields[0] == "V" {
-				l.lastTemperature = int64(val * 100)
+				l.lastVoltage = int64(val * 100)
 			} else {
 				l.Warningf("Unknown prefix '%s'", dataFields[0])
 			}
@@ -182,22 +182,16 @@ func (l *LeezenflowSensor) Collect() map[string]int64 {
 
 	// Danger and not good practice
 	// Hard coding these :(
-	if l.lastTemperature != 0 {
+	if l.lastTemperature != 0 && l.lastHumidty != 0 && l.lastPressure != 0 {
 		collected["temperature_temperature"] = l.lastTemperature
 		l.lastTemperature = 0
-	}
 
-	if l.lastHumidty != 0 {
 		collected["humidity_humidity"] = l.lastHumidty
 		l.lastHumidty = 0
-	}
 
-	if l.lastVoltage != 0 {
 		collected["voltage_voltage"] = l.lastVoltage
 		l.lastVoltage = 0
-	}
 
-	if l.lastPressure != 0 {
 		collected["pressure_pressure"] = l.lastPressure
 		l.lastPressure = 0
 	}
