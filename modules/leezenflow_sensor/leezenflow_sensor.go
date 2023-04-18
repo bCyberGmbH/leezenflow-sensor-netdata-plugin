@@ -5,6 +5,7 @@ package leezenflow_sensor
 import (
 	"bufio"
 	"math/rand"
+	"strconv"
 	"strings"
 
 	"github.com/netdata/go.d.plugin/agent/module"
@@ -32,6 +33,10 @@ func New() *LeezenflowSensor {
 				Num:  1,
 				Dims: 4,
 			},
+			Serial: ConfigSerial{
+				Port: "/dev/ttyUSB0",
+				Baud: 115200,
+			},
 		},
 
 		randInt:       func() int64 { return rand.Int63n(100) },
@@ -42,6 +47,7 @@ func New() *LeezenflowSensor {
 type (
 	Config struct {
 		Charts ConfigCharts `yaml:"charts"`
+		Serial ConfigSerial `yaml:"serial"`
 	}
 	ConfigCharts struct {
 		Type     string `yaml:"type"`
@@ -49,6 +55,10 @@ type (
 		Contexts int    `yaml:"contexts"`
 		Dims     int    `yaml:"dimensions"`
 		Labels   int    `yaml:"labels"`
+	}
+	ConfigSerial struct {
+		Port string `yaml:"port"`
+		Baud int    `yaml:"baud"`
 	}
 )
 
@@ -60,30 +70,31 @@ type LeezenflowSensor struct {
 	charts        *module.Charts
 	collectedDims map[string]bool
 
-	lastTemperature, lastHumidty, lastVoltage int64
+	lastTemperature, lastHumidty, lastVoltage, lastPressure int64
 }
 
 func (l *LeezenflowSensor) initSerial() error {
-	//
-	//flagSerialDevice := "/dev/ttyUSB0"
-	flagSerialDevice := "/dev/pts/3"
+
+	l.Printf("Trying to open serial device '%s' with baud rate %d", l.Config.Serial.Port, l.Config.Serial.Baud)
+
+	flagSerialDevice := l.Config.Serial.Port
 
 	config := &serial.Config{
 		Name: flagSerialDevice,
-		Baud: 9600,
+		Baud: l.Config.Serial.Baud,
 		// ReadTimeout: 1,
 		Size: 8,
 	}
 
 	stream, err := serial.OpenPort(config)
 	if err != nil {
-		l.Errorf("Could not open device %s: %v\n", flagSerialDevice, err)
+		l.Errorf("Could not open device '%s': %v\n", flagSerialDevice, err)
 		return err
 	}
 
 	go func() {
 
-		// log.Printf("Listening for messages on %s", flagSerialDevice)
+		l.Printf("Listening for messages on '%s'", flagSerialDevice)
 
 		scanner := bufio.NewScanner(stream)
 		for scanner.Scan() {
@@ -96,8 +107,34 @@ func (l *LeezenflowSensor) initSerial() error {
 			// Hier Nachricht vom ESP parsen und zwischenspeichern
 
 			// fmt.Fprintf(l.tempString, "%s,", line)
-			l.Println(line)
+			l.Printf("Received: '%s'", line)
+			// l.lastTemperature = 10
 
+			// Split line
+			dataFields := strings.Split(line, ":")
+			if len(dataFields) != 2 {
+				l.Warningf("Could not split '%s' into two fields", dataFields[1])
+				continue
+			}
+
+			// Try to parse second field into float
+			val, err := strconv.ParseFloat(strings.TrimSpace(dataFields[1]), 64)
+			if err != nil {
+				l.Warningf("Could not parse '%s' as float", dataFields[1])
+				continue
+			}
+
+			if dataFields[0] == "C" {
+				l.lastTemperature = int64(val * 10)
+			} else if dataFields[0] == "H" {
+				l.lastHumidty = int64(val)
+			} else if dataFields[0] == "P" {
+				l.lastPressure = int64(val)
+			} else if dataFields[0] == "V" {
+				l.lastTemperature = int64(val * 100)
+			} else {
+				l.Warningf("Unknown prefix '%s'", dataFields[0])
+			}
 		}
 		if err := scanner.Err(); err != nil {
 			l.Errorf("Error reading device %s: %v\n", flagSerialDevice, err)
@@ -108,13 +145,7 @@ func (l *LeezenflowSensor) initSerial() error {
 }
 
 func (l *LeezenflowSensor) Init() bool {
-	err := l.validateConfig()
-	if err != nil {
-		l.Errorf("config validation: %v", err)
-		return false
-	}
-
-	err = l.initSerial()
+	err := l.initSerial()
 	if err != nil {
 		l.Errorf("serial initialization: %v", err)
 		return false
@@ -126,6 +157,15 @@ func (l *LeezenflowSensor) Init() bool {
 		return false
 	}
 	l.charts = charts
+
+	l.initDims()
+
+	// first measurement seems to discarded anyway?
+	l.lastTemperature = 10
+	l.lastHumidty = 10
+	l.lastVoltage = 10
+	l.lastPressure = 10
+
 	return true
 }
 
@@ -138,15 +178,31 @@ func (l *LeezenflowSensor) Charts() *module.Charts {
 }
 
 func (l *LeezenflowSensor) Collect() map[string]int64 {
-	mx, err := l.collect()
-	if err != nil {
-		l.Error(err)
+	collected := make(map[string]int64)
+
+	// Danger and not good practice
+	// Hard coding these :(
+	if l.lastTemperature != 0 {
+		collected["temperature_temperature"] = l.lastTemperature
+		l.lastTemperature = 0
 	}
 
-	if len(mx) == 0 {
-		return nil
+	if l.lastHumidty != 0 {
+		collected["humidity_humidity"] = l.lastHumidty
+		l.lastHumidty = 0
 	}
-	return mx
+
+	if l.lastVoltage != 0 {
+		collected["voltage_voltage"] = l.lastVoltage
+		l.lastVoltage = 0
+	}
+
+	if l.lastPressure != 0 {
+		collected["pressure_pressure"] = l.lastPressure
+		l.lastPressure = 0
+	}
+
+	return collected
 }
 
 func (l *LeezenflowSensor) Cleanup() {}

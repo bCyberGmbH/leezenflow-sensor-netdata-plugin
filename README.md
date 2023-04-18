@@ -11,12 +11,12 @@ sidebar_position: 1
 
 ## leezenflow netdata plugin
 
-Reads sensor measurements from a serial port.
+Reads sensor measurements from a serial port. Code in [`modules/leezenflow_sensor`](./modules/leezenflow_sensor)
 
 Dev build:
 
 ```
-make build && bin/godplugin -m leezenflow_sensor
+make build && bin/godplugin -m leezenflow_sensor -c config/go.d
 ```
 
 Build:
@@ -34,13 +34,34 @@ First:
 socat -d -d pty,raw,echo=0 pty,raw,echo=0
 ```
 
-Look at the output. One of the `/dev/pts/...` lines goes into the config of the netdata plugin, the other can should be used to pipe stuff into from the second terminal.
+Look at the output. One of the `/dev/pts/...` lines goes into the config of the netdata plugin config file ([`config/go.d/leezenflow_sensor.conf`](./config/go.d/leezenflow_sensor.conf)), the other can should be used to pipe stuff into from the second terminal.
 
 Second:
 
 ```
 echo "I AM A TEST MESSAGE" > /dev/pts/3
 ```
+
+<!--
+
+NOT TESTED
+
+
+### Test with netdata agent container
+
+Open two terminals
+
+First:
+```
+socat -d -d pty,raw,echo=0 pty,raw,echo=0
+```
+
+Start the container
+```
+docker run --rm -it -p 127.0.0.1:19999:19999 -v $(pwd)/bin/godplugin:/usr/libexec/netdata/plugins.d/go.d.plugin -v $(pwd)/mocks/conf.d/go.d.conf:/etc/netdata/go.d.conf -v $(pwd)/mocks/conf.d/go.d:/etc/netdata/go.d --device /dev/pts/5 netdata/netdata
+```
+
+-->
 
 
 # go.d.plugin

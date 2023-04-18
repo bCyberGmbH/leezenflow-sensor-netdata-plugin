@@ -3,46 +3,42 @@
 package leezenflow_sensor
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/netdata/go.d.plugin/agent/module"
 )
 
-func (l *LeezenflowSensor) validateConfig() error {
-	if l.Config.Charts.Num <= 0 {
-		return errors.New("'charts->num' must be > 0")
-	}
-	if l.Config.Charts.Num > 0 && l.Config.Charts.Dims <= 0 {
-		return errors.New("'charts->dimensions' must be > 0")
-	}
-	return nil
-}
-
 func (l *LeezenflowSensor) initCharts() (*module.Charts, error) {
 	charts := &module.Charts{}
 
-	var ctx int
-	v := calcContextEvery(l.Config.Charts.Num, l.Config.Charts.Contexts)
-	for i := 0; i < l.Config.Charts.Num; i++ {
-		if i != 0 && v != 0 && ctx < (l.Config.Charts.Contexts-1) && i%v == 0 {
-			ctx++
-		}
-		chart := newChart(i, ctx, l.Config.Charts.Labels, module.ChartType(l.Config.Charts.Type))
+	if err := charts.Add(newTempChart()); err != nil {
+		return nil, err
+	}
 
-		if err := charts.Add(chart); err != nil {
-			return nil, err
-		}
+	if err := charts.Add(newHumiChart()); err != nil {
+		return nil, err
+	}
+
+	if err := charts.Add(newVoltageChart()); err != nil {
+		return nil, err
+	}
+
+	if err := charts.Add(newPressureChart()); err != nil {
+		return nil, err
 	}
 
 	return charts, nil
 }
 
-func calcContextEvery(charts, contexts int) int {
-	if contexts <= 1 {
-		return 0
+func (l *LeezenflowSensor) initDims() {
+	for _, chart := range *l.Charts() {
+		name := chart.ID
+		id := fmt.Sprintf("%s_%s", chart.ID, name)
+
+		dim := &module.Dim{ID: id, Name: name}
+		if err := chart.AddDim(dim); err != nil {
+			l.Warning(err)
+		}
+		chart.MarkNotCreated()
 	}
-	if contexts > charts {
-		return 1
-	}
-	return charts / contexts
 }
