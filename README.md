@@ -25,6 +25,13 @@ Build:
 make
 ```
 
+### Build for raspberry
+
+```
+./hack/go-build.sh linux/arm
+cp bin/godplugin bin/godplugin-arm
+```
+
 ### Dev serial port
 
 Open two terminals

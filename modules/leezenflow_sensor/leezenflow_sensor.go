@@ -106,34 +106,49 @@ func (l *LeezenflowSensor) initSerial() error {
 
 			// Hier Nachricht vom ESP parsen und zwischenspeichern
 
-			// fmt.Fprintf(l.tempString, "%s,", line)
 			l.Printf("Received: '%s'", line)
-			// l.lastTemperature = 10
 
-			// Split line
-			dataFields := strings.Split(line, ":")
-			if len(dataFields) != 2 {
-				l.Warningf("Could not split '%s' into two fields", dataFields[1])
+			// Split line into measurements
+			dataFields := strings.Split(line, ",")
+			if len(dataFields) != 4 {
+				l.Warningf("Could not split '%s' into 4 fields", dataFields[1])
 				continue
 			}
 
-			// Try to parse second field into float
-			val, err := strconv.ParseFloat(strings.TrimSpace(dataFields[1]), 64)
+			// Try to parse first field into int (Celsius * 10)
+			val, err := strconv.ParseInt(strings.TrimSpace(dataFields[0]), 10, 64)
 			if err != nil {
-				l.Warningf("Could not parse '%s' as float", dataFields[1])
+				l.Warningf("Could not parse '%s' as int", dataFields[0])
 				continue
+			} else {
+				l.lastTemperature = val
 			}
 
-			if dataFields[0] == "C" {
-				l.lastTemperature = int64(val * 10)
-			} else if dataFields[0] == "H" {
-				l.lastHumidty = int64(val)
-			} else if dataFields[0] == "P" {
-				l.lastPressure = int64(val)
-			} else if dataFields[0] == "V" {
-				l.lastVoltage = int64(val * 100)
+			// Try to parse second field into int (Humidity)
+			val, err = strconv.ParseInt(strings.TrimSpace(dataFields[1]), 10, 64)
+			if err != nil {
+				l.Warningf("Could not parse '%s' as int for humidity", dataFields[1])
+				continue
 			} else {
-				l.Warningf("Unknown prefix '%s'", dataFields[0])
+				l.lastHumidty = val
+			}
+
+			// Try to parse third field into int (Pressure)
+			val, err = strconv.ParseInt(strings.TrimSpace(dataFields[2]), 10, 64)
+			if err != nil {
+				l.Warningf("Could not parse '%s' as int for pressure", dataFields[2])
+				continue
+			} else {
+				l.lastPressure = val
+			}
+
+			// Try to parse fourth field into int (Voltage)
+			val, err = strconv.ParseInt(strings.TrimSpace(dataFields[3]), 10, 64)
+			if err != nil {
+				l.Warningf("Could not parse '%s' as float for voltage", dataFields[3])
+				continue
+			} else {
+				l.lastVoltage = val
 			}
 		}
 		if err := scanner.Err(); err != nil {
@@ -182,7 +197,7 @@ func (l *LeezenflowSensor) Collect() map[string]int64 {
 
 	// Danger and not good practice
 	// Hard coding these :(
-	if l.lastTemperature != 0 && l.lastHumidty != 0 && l.lastPressure != 0 {
+	if l.lastTemperature != 0 && l.lastHumidty != 0 && l.lastPressure != 0 && l.lastVoltage != 0 {
 		collected["temperature_temperature"] = l.lastTemperature
 		l.lastTemperature = 0
 
