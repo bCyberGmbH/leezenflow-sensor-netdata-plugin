@@ -13,7 +13,12 @@ sidebar_position: 1
 
 Reads sensor measurements from a serial port. Code in [`modules/leezenflow_sensor`](./modules/leezenflow_sensor)
 
-Dev build:
+### Binary releases
+
+- [Create a new release](https://github.com/bCyberGmbH/leezenflow-sensor-netdata-plugin/releases/new)
+- Wait for the [GitHub Action](https://github.com/bCyberGmbH/leezenflow-sensor-netdata-plugin/actions/workflows/release.yaml) to complete. It will upload binaries to the release
+
+### Dev build
 
 ```
 make build && bin/godplugin -m leezenflow_sensor -c config/go.d
