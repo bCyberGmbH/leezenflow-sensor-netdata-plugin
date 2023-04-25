@@ -5,22 +5,22 @@
 set -e
 
 PLATFORMS=(
-  darwin/amd64
-  darwin/arm64
-  freebsd/386
-  freebsd/amd64
-  freebsd/arm
-  freebsd/arm64
-  linux/386
+  # darwin/amd64
+  # darwin/arm64
+  # freebsd/386
+  # freebsd/amd64
+  # freebsd/arm
+  # freebsd/arm64
+  # linux/386
   linux/amd64
   linux/arm
-  linux/arm64
-  linux/ppc64
-  linux/ppc64le
-  linux/mips
-  linux/mipsle
-  linux/mips64
-  linux/mips64le
+  # linux/arm64
+  # linux/ppc64
+  # linux/ppc64le
+  # linux/mips
+  # linux/mipsle
+  # linux/mips64
+  # linux/mips64le
 )
 
 getos() {
