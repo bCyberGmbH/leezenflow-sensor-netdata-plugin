@@ -199,16 +199,9 @@ func (l *LeezenflowSensor) Collect() map[string]int64 {
 	// Hard coding these :(
 	if l.lastTemperature != 0 && l.lastHumidty != 0 && l.lastPressure != 0 && l.lastVoltage != 0 {
 		collected["temperature_temperature"] = l.lastTemperature
-		l.lastTemperature = 0
-
 		collected["humidity_humidity"] = l.lastHumidty
-		l.lastHumidty = 0
-
 		collected["voltage_voltage"] = l.lastVoltage
-		l.lastVoltage = 0
-
 		collected["pressure_pressure"] = l.lastPressure
-		l.lastPressure = 0
 	}
 
 	return collected

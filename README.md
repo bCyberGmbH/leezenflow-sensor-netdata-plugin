@@ -199,13 +199,13 @@ Configurations are written in [YAML](http://yaml.org/).
 
 ### Enable a collector
 
-To enable a collector you should edit `go.d.conf` to uncomment the collector in question and change it from `no` to `yes`. 
+To enable a collector you should edit `go.d.conf` to uncomment the collector in question and change it from `no` to `yes`.
 
 For example, to enable the `example` plugin you would need to update `go.d.conf` from something like:
 
 ```yaml
 modules:
-#  example: no 
+#  example: no
 ```
 
 to
