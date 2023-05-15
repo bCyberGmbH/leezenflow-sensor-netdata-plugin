@@ -30,6 +30,31 @@ Build:
 make
 ```
 
+### Update from upstream
+
+After cloning the repository, set up `upstream` git remote (Only do this once)
+
+```
+git remote add -f upstream https://github.com/netdata/go.d.plugin.git
+```
+
+To update to a specific git tag, do
+
+```
+git fetch upstream # Fetch updates from upstream remote
+git switch -c update-from-upstream # Create new branch
+git merge v0.52.2 # Replace with tag you want to update from
+# It may me neccessary to fix git conflicts
+go mod tidy # Make sure our changes are still there
+# If there are changes to go.mod or go.sum, commit + push them
+git push origin update-from-upstream
+# Create a PR to merge into `leezenflow_sensor` branch
+# Merge it if everything works
+git switch leezenflow_sensor
+git pull origin leezenflow_sensor
+git branch -D update-from-upstream
+```
+
 ### Build for raspberry
 
 ```
