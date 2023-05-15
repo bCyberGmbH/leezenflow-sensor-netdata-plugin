@@ -111,7 +111,7 @@ func (l *LeezenflowSensor) initSerial() error {
 			// Split line into measurements
 			dataFields := strings.Split(line, ",")
 			if len(dataFields) != 4 {
-				l.Warningf("Could not split '%s' into 4 fields", dataFields[1])
+				l.Warningf("Could not split '%s' into 4 fields", dataFields)
 				continue
 			}
 
@@ -121,6 +121,7 @@ func (l *LeezenflowSensor) initSerial() error {
 				l.Warningf("Could not parse '%s' as int", dataFields[0])
 			} else {
 				l.lastTemperature = val
+				l.Printf("Temperature is now: '%d'", l.lastTemperature)
 			}
 
 			// Try to parse second field into int (Humidity)
@@ -129,6 +130,7 @@ func (l *LeezenflowSensor) initSerial() error {
 				l.Warningf("Could not parse '%s' as int for humidity", dataFields[1])
 			} else {
 				l.lastHumidty = val
+				l.Printf("Humidity is now: '%d'", l.lastHumidty)
 			}
 
 			// Try to parse third field into int (Pressure)
@@ -137,6 +139,7 @@ func (l *LeezenflowSensor) initSerial() error {
 				l.Warningf("Could not parse '%s' as int for pressure", dataFields[2])
 			} else {
 				l.lastPressure = val
+				l.Printf("Pressure is now: '%d'", l.lastPressure)
 			}
 
 			// Try to parse fourth field into int (Voltage)
@@ -145,6 +148,7 @@ func (l *LeezenflowSensor) initSerial() error {
 				l.Warningf("Could not parse '%s' as float for voltage", dataFields[3])
 			} else {
 				l.lastVoltage = val
+				l.Printf("Voltage is now: '%d'", l.lastVoltage)
 			}
 		}
 		if err := scanner.Err(); err != nil {
@@ -162,14 +166,7 @@ func (l *LeezenflowSensor) Init() bool {
 		return false
 	}
 
-	charts, err := l.initCharts()
-	if err != nil {
-		l.Errorf("charts init: %v", err)
-		return false
-	}
-	l.charts = charts
-
-	l.initDims()
+	l.charts = leezenflowCharts.Copy()
 
 	// first measurement seems to discarded anyway?
 	l.lastTemperature = 10
@@ -194,10 +191,10 @@ func (l *LeezenflowSensor) Collect() map[string]int64 {
 	// Danger and not good practice
 	// Hard coding these :(
 	if l.lastTemperature != 0 && l.lastHumidty != 0 && l.lastPressure != 0 {
-		collected["temperature_temperature"] = l.lastTemperature
-		collected["humidity_humidity"] = l.lastHumidty
-		collected["voltage_voltage"] = l.lastVoltage
-		collected["pressure_pressure"] = l.lastPressure
+		collected["temperature"] = l.lastTemperature
+		collected["humidity"] = l.lastHumidty
+		collected["voltage"] = l.lastVoltage
+		collected["pressure"] = l.lastPressure
 	}
 
 	return collected
