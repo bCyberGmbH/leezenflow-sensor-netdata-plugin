@@ -119,7 +119,6 @@ func (l *LeezenflowSensor) initSerial() error {
 			val, err := strconv.ParseInt(strings.TrimSpace(dataFields[0]), 10, 64)
 			if err != nil {
 				l.Warningf("Could not parse '%s' as int", dataFields[0])
-				continue
 			} else {
 				l.lastTemperature = val
 			}
@@ -128,7 +127,6 @@ func (l *LeezenflowSensor) initSerial() error {
 			val, err = strconv.ParseInt(strings.TrimSpace(dataFields[1]), 10, 64)
 			if err != nil {
 				l.Warningf("Could not parse '%s' as int for humidity", dataFields[1])
-				continue
 			} else {
 				l.lastHumidty = val
 			}
@@ -137,7 +135,6 @@ func (l *LeezenflowSensor) initSerial() error {
 			val, err = strconv.ParseInt(strings.TrimSpace(dataFields[2]), 10, 64)
 			if err != nil {
 				l.Warningf("Could not parse '%s' as int for pressure", dataFields[2])
-				continue
 			} else {
 				l.lastPressure = val
 			}
@@ -146,7 +143,6 @@ func (l *LeezenflowSensor) initSerial() error {
 			val, err = strconv.ParseInt(strings.TrimSpace(dataFields[3]), 10, 64)
 			if err != nil {
 				l.Warningf("Could not parse '%s' as float for voltage", dataFields[3])
-				continue
 			} else {
 				l.lastVoltage = val
 			}
@@ -197,7 +193,7 @@ func (l *LeezenflowSensor) Collect() map[string]int64 {
 
 	// Danger and not good practice
 	// Hard coding these :(
-	if l.lastTemperature != 0 && l.lastHumidty != 0 && l.lastPressure != 0 && l.lastVoltage != 0 {
+	if l.lastTemperature != 0 && l.lastHumidty != 0 && l.lastPressure != 0 {
 		collected["temperature_temperature"] = l.lastTemperature
 		collected["humidity_humidity"] = l.lastHumidty
 		collected["voltage_voltage"] = l.lastVoltage
