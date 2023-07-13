@@ -158,7 +158,7 @@ see the appropriate collector readme.
 | [docker](https://github.com/netdata/go.d.plugin/tree/master/modules/docker)                         |         Docker Engine         |
 | [docker_engine](https://github.com/netdata/go.d.plugin/tree/master/modules/docker_engine)           |         Docker Engine         |
 | [dockerhub](https://github.com/netdata/go.d.plugin/tree/master/modules/dockerhub)                   |          Docker Hub           |
-| [elasticsearch](https://github.com/netdata/go.d.plugin/tree/master/modules/elasticsearch)           |         Elasticsearch         |
+| [elasticsearch](https://github.com/netdata/go.d.plugin/tree/master/modules/elasticsearch)           |   Elasticsearch/OpenSearch    |
 | [energid](https://github.com/netdata/go.d.plugin/tree/master/modules/energid)                       |          Energi Core          |
 | [envoy](https://github.com/netdata/go.d.plugin/tree/master/modules/envoy)                           |             Envoy             |
 | [example](https://github.com/netdata/go.d.plugin/tree/master/modules/example)                       |               -               |
@@ -173,7 +173,6 @@ see the appropriate collector readme.
 | [k8s_kubeproxy](https://github.com/netdata/go.d.plugin/tree/master/modules/k8s_kubeproxy)           |          Kube-proxy           |
 | [k8s_state](https://github.com/netdata/go.d.plugin/tree/master/modules/k8s_state)                   |   Kubernetes cluster state    |
 | [lighttpd](https://github.com/netdata/go.d.plugin/tree/master/modules/lighttpd)                     |           Lighttpd            |
-| [lighttpd2](https://github.com/netdata/go.d.plugin/tree/master/modules/lighttpd2)                   |           Lighttpd2           |
 | [logind](https://github.com/netdata/go.d.plugin/tree/master/modules/logind)                         |        systemd-logind         |
 | [logstash](https://github.com/netdata/go.d.plugin/tree/master/modules/logstash)                     |           Logstash            |
 | [mongoDB](https://github.com/netdata/go.d.plugin/tree/master/modules/mongodb)                       |            MongoDB            |

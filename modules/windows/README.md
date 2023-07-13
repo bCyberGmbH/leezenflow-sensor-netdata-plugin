@@ -11,8 +11,8 @@ agent running on each host.
 
 To quickly test Netdata directly on a Windows machine, you can use
 the [Netdata MSI installer](https://github.com/netdata/msi-installer#instructions). The installer runs Netdata in a
-custom WSL deployment. WSL was not designed for production environments, so **we do not recommend using the MSI installer in
-production**.
+custom WSL deployment. WSL was not designed for production environments, so **we do not recommend using the MSI
+installer in production**.
 
 For production use, you need to install Netdata on one or more nodes running Linux:
 
@@ -58,6 +58,7 @@ The module collects metrics from the following collectors:
 - [netframework_clrmemory](https://github.com/prometheus-community/windows_exporter/blob/master/docs/collector.netframework_clrmemory.md)
 - [netframework_clrremoting](https://github.com/prometheus-community/windows_exporter/blob/master/docs/collector.netframework_clrremoting.md)
 - [exchange](https://github.com/prometheus-community/windows_exporter/blob/master/docs/collector.exchange.md)
+- [hyperv](https://github.com/prometheus-community/windows_exporter/blob/master/docs/collector.hyperv.md)
 
 All metrics have a prefix.
 
@@ -73,6 +74,10 @@ Labels per scope:
 - certificate template: cert_template.
 - service: service.
 - process: process.
+- vm: vm_name.
+- vm device: vm_device.
+- vm interface: vm_interface.
+- vswitch: vswitch.
 
 | Metric                                                               |        Scope         |                                                                                     Dimensions                                                                                     |       Units       |
 |----------------------------------------------------------------------|:--------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-----------------:|
@@ -82,7 +87,6 @@ Labels per scope:
 | windows.cpu_core_dpcs                                                |       cpu core       |                                                                                        dpcs                                                                                        |      dpcs/s       |
 | windows.cpu_core_cstate                                              |       cpu core       |                                                                                     c1, c2, c3                                                                                     |    percentage     |
 | windows.memory_utilization                                           |        global        |                                                                                  available, used                                                                                   |       bytes       |
-| windows.memory_utilization                                           |        global        |                                                                                  available, used                                                                                   |        KiB        |
 | windows.memory_page_faults                                           |        global        |                                                                                    page_faults                                                                                     |     events/s      |
 | windows.memory_swap_utilization                                      |        global        |                                                                                  available, used                                                                                   |       bytes       |
 | windows.memory_swap_operations                                       |        global        |                                                                                    read, write                                                                                     |   operations/s    |
@@ -113,7 +117,7 @@ Labels per scope:
 | windows.system_threads                                               |        global        |                                                                                      threads                                                                                       |      number       |
 | windows.system_uptime                                                |        global        |                                                                                        time                                                                                        |      seconds      |
 | windows.logon_type_sessions                                          |        global        | system, interactive, network, batch, service, proxy, unlock, network_clear_text, new_credentials, remote_interactive, cached_interactive, cached_remote_interactive, cached_unlock |      seconds      |
-| windows.thermalzone_temperature                                      |        global        |                                                                         <i>a dimension per thermalzone</i>                                                                         |      celsius      |
+| windows.thermalzone_temperature                                      |     thermalzone      |                                                                                    temperature                                                                                     |      Celsius      |
 | windows.processes_cpu_utilization                                    |        global        |                                                                           <i>a dimension per process</i>                                                                           |    percentage     |
 | windows.processes_handles                                            |        global        |                                                                           <i>a dimension per process</i>                                                                           |      handles      |
 | windows.processes_io_bytes                                           |        global        |                                                                           <i>a dimension per process</i>                                                                           |      bytes/s      |
@@ -160,7 +164,7 @@ Labels per scope:
 | mssql.database_log_flushed                                           |       database       |                                                                                      flushed                                                                                       |      bytes/s      |
 | mssql.database_log_flushes                                           |       database       |                                                                                        log                                                                                         |     flushes/s     |
 | mssql.database_transactions                                          |       database       |                                                                                    transactions                                                                                    |  transactions/s   |
-| mssql.instance_write_transactions                                    |       database       |                                                                                       write                                                                                        |  transactions/s   |
+| mssql.database_write_transactions                                    |       database       |                                                                                       write                                                                                        |  transactions/s   |
 | ad.database_operations                                               |        global        |                                                                            add, delete, modify, recycle                                                                            |   operations/s    |
 | ad.directory_operations                                              |        global        |                                                                                read, write, search                                                                                 |   operations/s    |
 | ad.name_cache_lookups                                                |        global        |                                                                                      lookups                                                                                       |     lookups/s     |
@@ -301,12 +305,48 @@ Labels per scope:
 | exchange.http_proxy_mailbox_proxy_failure_rate                       |      http proxy      |                                                                                      failures                                                                                      |    percentage     |
 | exchange.http_proxy_mailbox_server_locator_avg_latency_sec           |      http proxy      |                                                                                      latency                                                                                       |      seconds      |
 | exchange.http_proxy_outstanding_proxy_requests                       |      http proxy      |                                                                                    outstanding                                                                                     |     requests      |
-| exchange.http_proxy_requests_total                                   |      http proxy      |                                                                                     processed                                                                                      |    requests/s     |
+| hyperv.vms_health                                                    |                      |                                                                                    ok, critical                                                                                    |        vms        |
+| hyperv.root_partition_device_space_pages                             |                      |                                                                                     4K, 2M, 1G                                                                                     |       pages       |
+| hyperv.root_partition_gpa_space_pages                                |                      |                                                                                     4K, 2M, 1G                                                                                     |       pages       |
+| hyperv.root_partition_gpa_space_modifications                        |                      |                                                                                        gpa                                                                                         |  modifications/s  |
+| hyperv.root_partition_attached_devices                               |                      |                                                                                      attached                                                                                      |      devices      |
+| hyperv.root_partition_deposited_pages                                |                      |                                                                                     deposited                                                                                      |       pages       |
+| hyperv.root_partition_skipped_interrupts                             |                      |                                                                                      skipped                                                                                       |    interrupts     |
+| hyperv.root_partition_device_dma_errors                              |                      |                                                                                      skipped                                                                                       |     requests      |
+| hyperv.root_partition_device_interrupt_errors                        |                      |                                                                                 illegal_interrupt                                                                                  |     requests      |
+| hyperv.root_partition_device_interrupt_throttle_events               |                      |                                                                                     throttling                                                                                     |      events       |
+| hyperv.root_partition_io_tlb_flush                                   |                      |                                                                                      flushes                                                                                       |     flushes/s     |
+| hyperv.root_partition_address_space                                  |                      |                                                                                   address_spaces                                                                                   |  address spaces   |
+| hyperv.root_partition_virtual_tlb_flush_entries                      |                      |                                                                                      flushes                                                                                       |     flushes/s     |
+| hyperv.root_partition_virtual_tlb_pages                              |                      |                                                                                        used                                                                                        |       pages       |
+| hyperv.vm_cpu_usage                                                  |          vm          |                                                                             guest, hypervisor, remote                                                                              |    percentage     |
+| hyperv.vm_memory_physical                                            |          vm          |                                                                                  assigned_memory                                                                                   |        MiB        |
+| hyperv.vm_memory_physical_guest_visible                              |          vm          |                                                                                   visible_memory                                                                                   |        MiB        |
+| hyperv.vm_memory_pressure_current                                    |          vm          |                                                                                      pressure                                                                                      |    percentage     |
+| hyperv.vm_vid_physical_pages_allocated                               |          vm          |                                                                                     allocated                                                                                      |       pages       |
+| hyperv.vm_vid_remote_physical_pages                                  |          vm          |                                                                                  remote_physical                                                                                   |       pages       |
+| hyperv.vm_device_bytes                                               |      vm device       |                                                                                   read, written                                                                                    |      bytes/s      |
+| hyperv.vm_device_operations                                          |      vm device       |                                                                                    read, write                                                                                     |   operations/s    |
+| hyperv.vm_device_errors                                              |      vm device       |                                                                                       errors                                                                                       |     errors/s      |
+| hyperv.vm_interface_bytes                                            |     vm interface     |                                                                                   received, sent                                                                                   |      bytes/s      |
+| hyperv.vm_interface_packets                                          |     vm interface     |                                                                                   received, sent                                                                                   |     packets/s     |
+| hyperv.vm_interface_packets_dropped                                  |     vm interface     |                                                                                 incoming, outgoing                                                                                 |      drops/s      |
+| hyperv.vswitch_bytes                                                 |       vswitch        |                                                                                   received, sent                                                                                   |      bytes/s      |
+| hyperv.vswitch_packets                                               |       vswitch        |                                                                                   received, sent                                                                                   |     packets/s     |
+| hyperv.vswitch_directed_packets                                      |       vswitch        |                                                                                   received, sent                                                                                   |     packets/s     |
+| hyperv.vswitch_broadcast_packets                                     |       vswitch        |                                                                                   received, sent                                                                                   |     packets/s     |
+| hyperv.vswitch_multicast_packets                                     |       vswitch        |                                                                                   received, sent                                                                                   |     packets/s     |
+| hyperv.vswitch_dropped_packets                                       |       vswitch        |                                                                                 incoming, outgoing                                                                                 |      drops/s      |
+| hyperv.vswitch_extensions_dropped_packets                            |       vswitch        |                                                                                 incoming, outgoing                                                                                 |      drops/s      |
+| hyperv.vswitch_packets_flooded                                       |       vswitch        |                                                                                      flooded                                                                                       |     packets/s     |
+| hyperv.vswitch_learned_mac_addresses                                 |       vswitch        |                                                                                      learned                                                                                       |  mac addresses/s  |
+| hyperv.vswitch_purged_mac_addresses                                  |       vswitch        |                                                                                       purged                                                                                       |  mac addresses/s  |
 
 ## Configuration
 
 Edit the `go.d/windows.conf` configuration file using `edit-config` from the
-Netdata [config directory](https://github.com/netdata/netdata/blob/master/docs/configure/nodes.md#the-netdata-config-directory), which is typically at `/etc/netdata`.
+Netdata [config directory](https://github.com/netdata/netdata/blob/master/docs/configure/nodes.md#the-netdata-config-directory),
+which is typically at `/etc/netdata`.
 
 ```bash
 cd /etc/netdata # Replace this path with your Netdata config directory
@@ -332,25 +372,29 @@ module [configuration file](https://github.com/netdata/go.d.plugin/blob/master/c
 
 ### Virtual Nodes
 
-Netdata’s new virtual nodes functionality allows you to define nodes in configuration files and have them be treated as regular nodes in all of the UI, dashboards, tabs, filters etc. For example, you can create a virtual node each for all your Windows machines and monitor them as discrete entities. Virtual nodes can help you simplify your infrastructure monitoring and focus on the individual node that matters.
+Netdata’s new virtual nodes functionality allows you to define nodes in configuration files and have them be treated as
+regular nodes in all the UI, dashboards, tabs, filters etc. For example, you can create a virtual node each for all
+your Windows machines and monitor them as discrete entities. Virtual nodes can help you simplify your infrastructure
+monitoring and focus on the individual node that matters.
 
-To define your windows server a virtual node you need to:
+To define your Windows server a virtual node you need to:
 
-  * Define virtual nodes in `/etc/netdata/vnodes/vnodes.conf`
+* Define virtual nodes in `/etc/netdata/vnodes/vnodes.conf`
 
-    ```yaml
-    - hostname: win_server1
-      guid: <value>
-    ```
-    Just remember to use a valid guid (On Linux you can use `uuidgen` command to generate one, on Windows just use the `[guid]::NewGuid()` command in PowerShell)
-    
-  * Add the vnode config to the windows monitoring job we created earlier, see higlighted line below:
-    ```yaml
-      jobs:
-        - name: win_server1
-          vnode: win_server1
-          url: http://203.0.113.10:9182/metrics
-    ```
+  ```yaml
+  - hostname: win_server1
+    guid: <value>
+  ```
+  Just remember to use a valid guid (On Linux you can use `uuidgen` command to generate one, on Windows just use
+  the `[guid]::NewGuid()` command in PowerShell)
+
+* Add the vnode config to the windows monitoring job we created earlier, see higlighted line below:
+  ```yaml
+    jobs:
+      - name: win_server1
+        vnode: win_server1
+        url: http://203.0.113.10:9182/metrics
+  ```
 
 ## Troubleshooting
 
@@ -375,4 +419,3 @@ should give you clues as to why the collector isn't working.
   ```bash
   ./go.d.plugin -d -m windows
   ```
-

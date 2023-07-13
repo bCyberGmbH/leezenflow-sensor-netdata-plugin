@@ -37,7 +37,6 @@ import (
 	_ "github.com/netdata/go.d.plugin/modules/k8s_state"
 	_ "github.com/netdata/go.d.plugin/modules/leezenflow_sensor"
 	_ "github.com/netdata/go.d.plugin/modules/lighttpd"
-	_ "github.com/netdata/go.d.plugin/modules/lighttpd2"
 	_ "github.com/netdata/go.d.plugin/modules/logind"
 	_ "github.com/netdata/go.d.plugin/modules/logstash"
 	_ "github.com/netdata/go.d.plugin/modules/mongodb"
