@@ -1,0 +1,154 @@
+name: zookeeper
+title: Zookeeper collector
+overview:
+  application:
+    description: |
+      [ZooKeeper](https://zookeeper.apache.org/) is a centralized service for maintaining configuration information, naming,
+      providing distributed synchronization, and providing group services.
+  collector:
+    description: |
+      This collector monitors one or more ZooKeeper servers, depending on your configuration. It fetches metrics from ZooKeeper
+      by using the [mntr](https://zookeeper.apache.org/doc/r3.4.8/zookeeperAdmin.html#sc_zkCommands) command.
+setup:
+  prerequisites:
+    list:
+      - title: Whitelist `mntr` command
+        text: |
+          Add `mntr` to Zookeeper's [4lw.commands.whitelist](https://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_4lw).
+  configuration:
+    options:
+      description: |
+        The following options can be defined globally: update_every, autodetection_retry.
+      folding:
+        title: Config options
+        enabled: true
+      list:
+        - name: update_every
+          description: Data collection frequency.
+          default: 1
+          required: false
+        - name: autodetection_retry
+          description: Re-check interval in seconds. Zero means not to schedule re-check.
+          default: 0
+          required: false
+        - name: address
+          description: Server address. The format is IP:PORT.
+          default: 127.0.0.1:2181
+          required: true
+        - name: timeout
+          description: Connection/read/write/ssl handshake timeout.
+          default: 1
+          required: false
+        - name: use_tls
+          description: Whether to use TLS or not.
+          default: no
+          required: false
+        - name: tls_skip_verify
+          description: Server certificate chain and hostname validation policy. Controls whether the client performs this check.
+          default: no
+          required: false
+        - name: tls_ca
+          description: Certification authority that the client uses when verifying the server's certificates.
+          default: ""
+          required: false
+        - name: tls_cert
+          description: Client TLS certificate.
+          default: ""
+          required: false
+        - name: tls_key
+          description: Client TLS key.
+          default: ""
+          required: false
+    examples:
+      folding:
+        title: Config
+        enabled: true
+      list:
+        - name: Basic
+          description: Local server.
+          data: |
+            jobs:
+              - name: local
+                address: 127.0.0.1:2181
+        - name: TLS with self-signed certificate
+          description: Zookeeper with TLS and self-signed certificate.
+          data: |
+            jobs:
+              - name: local
+                address: 127.0.0.1:2181
+                use_tls: yes
+                tls_skip_verify: yes
+        - name: Multi-instance
+          description: |
+            > **Note**: When you define multiple jobs, their names must be unique.
+
+            Collecting metrics from local and remote instances.
+          data: |
+            jobs:
+              - name: local
+                address: 127.0.0.1:2181
+
+              - name: remote
+                address: 192.0.2.1:2181
+troubleshooting:
+  problems:
+    list: []
+metrics:
+  folding:
+    title: Metrics
+    enabled: false
+  description: ""
+  scope:
+    - name: global
+      description: These metrics refer to the entire monitored application.
+      labels: []
+      metrics:
+        - name: zookeeper.requests
+          description: Outstanding Requests
+          unit: requests
+          dimensions:
+            - name: outstanding
+        - name: zookeeper.requests_latency
+          description: Requests Latency
+          unit: ms
+          dimensions:
+            - name: min
+            - name: avg
+            - name: max
+        - name: zookeeper.connections
+          description: Alive Connections
+          unit: connections
+          dimensions:
+            - name: alive
+        - name: zookeeper.packets
+          description: Packets
+          unit: pps
+          dimensions:
+            - name: received
+            - name: sent
+        - name: zookeeper.file_descriptor
+          description: Open File Descriptors
+          unit: file descriptors
+          dimensions:
+            - name: open
+        - name: zookeeper.nodes
+          description: Number of Nodes
+          unit: nodes
+          dimensions:
+            - name: znode
+            - name: ephemerals
+        - name: zookeeper.watches
+          description: Number of Watches
+          unit: watches
+          dimensions:
+            - name: watches
+        - name: zookeeper.approximate_data_size
+          description: Approximate Data Tree Size
+          unit: KiB
+          dimensions:
+            - name: size
+        - name: zookeeper.server_state
+          description: Server State
+          unit: state
+          dimensions:
+            - name: state

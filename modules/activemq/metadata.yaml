@@ -1,0 +1,179 @@
+name: activemq
+title: ActiveMQ collector
+overview:
+  application:
+    description: |
+      [ActiveMQ](https://activemq.apache.org/) is an open source message broker written in Java together with a full Java Message Service client.
+  collector:
+    description: |
+      This collector monitors queues and topics metrics using ActiveMQ Console API.
+setup:
+  prerequisites:
+    list: []
+  configuration:
+    options:
+      description: |
+        The following options can be defined globally: update_every, autodetection_retry.
+      folding:
+        title: Config options
+        enabled: true
+      list:
+        - name: update_every
+          description: Data collection frequency.
+          default: 1
+          required: false
+        - name: autodetection_retry
+          description: Re-check interval in seconds. Zero means not to schedule re-check.
+          default: 0
+          required: false
+        - name: url
+          description: Server URL.
+          default: http://localhost:8161
+          required: true
+        - name: webadmin
+          description: Webadmin root path.
+          default: admin
+          required: true
+        - name: max_queues
+          description: Maximum number of concurrently collected queues.
+          default: 50
+          required: false
+        - name: max_topics
+          description: Maximum number of concurrently collected topics.
+          default: 50
+          required: false
+        - name: queues_filter
+          description: Queues filter. Syntax is [simple patterns](https://github.com/netdata/netdata/tree/master/libnetdata/simple_pattern#simple-patterns).
+          default: ""
+          required: false
+        - name: topics_filter
+          description: Topics filter. Syntax is [simple patterns](https://github.com/netdata/netdata/tree/master/libnetdata/simple_pattern#simple-patterns).
+          default: ""
+          required: false
+        - name: username
+          description: Username for basic HTTP authentication.
+          default: ""
+          required: false
+        - name: password
+          description: Password for basic HTTP authentication.
+          default: ""
+          required: false
+        - name: proxy_username
+          description: Username for proxy basic HTTP authentication.
+          default: ""
+          required: false
+        - name: proxy_password
+          description: Password for proxy basic HTTP authentication.
+          default: ""
+          required: false
+        - name: method
+          description: HTTP request method.
+          default: "GET"
+          required: false
+        - name: timeout
+          description: HTTP request timeout.
+          default: 1
+          required: false
+        - name: body
+          description: HTTP request body.
+          default: ""
+          required: false
+        - name: headers
+          description: HTTP request headers.
+          default: ""
+          required: false
+        - name: not_follow_redirects
+          description: Redirect handling policy. Controls whether the client follows redirects.
+          default: no
+          required: false
+        - name: tls_skip_verify
+          description: Server certificate chain and hostname validation policy. Controls whether the client performs this check.
+          default: no
+          required: false
+        - name: tls_ca
+          description: Certification authority that the client uses when verifying the server's certificates.
+          default: ""
+          required: false
+        - name: tls_cert
+          description: Client TLS certificate.
+          default: ""
+          required: false
+        - name: tls_key
+          description: Client TLS key.
+          default: ""
+          required: false
+    examples:
+      folding:
+        title: Config
+        enabled: true
+      list:
+        - name: Basic
+          description: A basic example configuration.
+          data: |
+            jobs:
+              - name: local
+                url: http://127.0.0.1:8161
+                webadmin: admin
+        - name: HTTP authentication
+          description: Basic HTTP authentication.
+          data: |
+            jobs:
+              - name: local
+                url: http://127.0.0.1:8161
+                webadmin: admin
+                username: foo
+                password: bar
+        - name: Filters and limits
+          description: Using filters and limits for queues and topics.
+          data: |
+            jobs:
+              - name: local
+                url: http://127.0.0.1:8161
+                webadmin: admin
+                max_queues: 100
+                max_topics: 100
+                queues_filter: '!sandr* *'
+                topics_filter: '!sandr* *'
+        - name: Multi-instance
+          description: |
+            > **Note**: When you define multiple jobs, their names must be unique.
+
+            Collecting metrics from local and remote instances.
+          data: |
+            jobs:
+              - name: local
+                url: http://127.0.0.1:8161
+                webadmin: admin
+
+              - name: remote
+                url: http://192.0.2.1:8161
+                webadmin: admin
+troubleshooting:
+  problems:
+    list: []
+metrics:
+  folding:
+    title: Metrics
+    enabled: false
+  description: ""
+  scope:
+    - name: global
+      description: These metrics refer to the entire monitored application.
+      labels: []
+      metrics:
+        - name: activemq.messages
+          description: Messaged
+          unit: messages/s
+          dimensions:
+            - name: enqueued
+            - name: dequeued
+        - name: activemq.unprocessed_messages
+          description: Unprocessed Messages
+          unit: messages
+          dimensions:
+            - name: unprocessed
+        - name: activemq.consumers
+          description: Consumers
+          unit: consumers
+          dimensions:
+            - name: consumers

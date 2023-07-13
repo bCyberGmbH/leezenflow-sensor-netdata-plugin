@@ -1,0 +1,144 @@
+name: chrony
+title: Chrony collector
+overview:
+  application:
+    description: |
+      [Chrony](https://chrony.tuxfamily.org/) is a versatile implementation of the Network Time Protocol (NTP).
+  collector:
+    description: |
+      This collector monitors the system's clock performance and peers activity status using Chrony communication protocol v6.
+setup:
+  prerequisites:
+    list: []
+  configuration:
+    options:
+      description: |
+        The following options can be defined globally: update_every, autodetection_retry.
+      folding:
+        title: Config options
+        enabled: true
+      list:
+        - name: update_every
+          description: Data collection frequency.
+          default: 5
+          required: false
+        - name: autodetection_retry
+          description: Re-check interval in seconds. Zero means not to schedule re-check.
+          default: 0
+          required: false
+        - name: address
+          description: Server address. The format is IP:PORT.
+          default: 127.0.0.1:323
+          required: true
+        - name: timeout
+          description: Connection timeout. Zero means no timeout.
+          default: 1
+          required: false
+    examples:
+      folding:
+        title: Config
+        enabled: true
+      list:
+        - name: Basic
+          description: A basic example configuration.
+          data: |
+            jobs:
+              - name: local
+                address: 127.0.0.1:323
+        - name: Multi-instance
+          description: |
+            > **Note**: When you define multiple jobs, their names must be unique.
+
+            Collecting metrics from local and remote instances.
+          data: |
+            jobs:
+              - name: local
+                address: 127.0.0.1:323
+
+              - name: remote
+                address: 192.0.2.1:323
+troubleshooting:
+  problems:
+    list: []
+metrics:
+  folding:
+    title: Metrics
+    enabled: false
+  description: ""
+  scope:
+    - name: global
+      description: These metrics refer to the entire monitored application.
+      labels: []
+      metrics:
+        - name: chrony.stratum
+          description: Distance to the reference clock
+          unit: level
+          dimensions:
+            - name: stratum
+        - name: chrony.current_correction
+          description: Current correction
+          unit: seconds
+          dimensions:
+            - name: current_correction
+        - name: chrony.root_delay
+          description: Network path delay to stratum-1
+          unit: seconds
+          dimensions:
+            - name: root_delay
+        - name: chrony.root_dispersion
+          description: Dispersion accumulated back to stratum-1
+          unit: seconds
+          dimensions:
+            - name: root_delay
+        - name: chrony.last_offset
+          description: Offset on the last clock update
+          unit: seconds
+          dimensions:
+            - name: offset
+        - name: chrony.rms_offset
+          description: Long-term average of the offset value
+          unit: seconds
+          dimensions:
+            - name: offset
+        - name: chrony.frequency
+          description: Frequency
+          unit: ppm
+          dimensions:
+            - name: frequency
+        - name: chrony.residual_frequency
+          description: Residual frequency
+          unit: ppm
+          dimensions:
+            - name: residual_frequency
+        - name: chrony.skew
+          description: Skew
+          unit: ppm
+          dimensions:
+            - name: skew
+        - name: chrony.update_interval
+          description: Interval between the last two clock updates
+          unit: seconds
+          dimensions:
+            - name: update_interval
+        - name: chrony.ref_measurement_time
+          description: Time since the last measurement
+          unit: seconds
+          dimensions:
+            - name: ref_measurement_time
+        - name: chrony.leap_status
+          description: Leap status
+          unit: status
+          dimensions:
+            - name: normal
+            - name: insert_second
+            - name: delete_second
+            - name: unsynchronised
+        - name: chrony.activity
+          description: Peers activity
+          unit: sources
+          dimensions:
+            - name: online
+            - name: offline
+            - name: burst_online
+            - name: burst_offline
+            - name: unresolved
